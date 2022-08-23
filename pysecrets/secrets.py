@@ -36,17 +36,20 @@ class Secrets:
         self._database: str = database
         self._secrets: dict = {}
 
+    def check_password(self):
+        key = self.list_keys()[0]
+        try:
+            self.__getitem__(key)
+            return True
+        except InvalidToken:
+            return False
+
     def set_key(self, password: str):
         self._key = Fernet(KeyGenerator(password))
 
     def __getitem__(self, key):
         encrypted_secret = self._secrets[key]
-        try:
-            secret = self._key.decrypt(encrypted_secret).decode()
-        except InvalidToken:
-            return "Your password is wrong !!"
-        else:
-            return secret
+        return self._key.decrypt(encrypted_secret).decode()
 
     def __setitem__(self, key, secret):
         value = self._key.encrypt(secret.encode())

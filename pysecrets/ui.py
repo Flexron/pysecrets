@@ -23,8 +23,10 @@ class KeySecretEntry:
         self.secrets = self.storage.load()
         if self.secrets is None:
             self.secrets = secrets.Secrets(database, password)
+            self.right_password = True
         else:
             self.secrets.set_key(password)
+            self.right_password = self.secrets.check_password()
 
     def init_ui(self):
         self.frm_database.pack(side=tk.TOP)
@@ -146,14 +148,16 @@ class App:
         self.secret: KeySecretEntry
 
     def _log_in(self, database_name, password):
-        self.destroy()
-        self.login.destroy()
-        self.app_frm = ttk.Frame(self.root, width=10, height=10)
         self.secret = KeySecretEntry(self.root, database_name, password)
-        leave = ttk.Button(self.app_frm, text="Quit", command=self.log_out)
-        self.secret.init_ui()
-        self.app_frm.pack(side=tk.BOTTOM)
-        leave.pack()
+        if self.secret.right_password:
+            self.destroy()
+            self.login.destroy()
+            self.app_frm = ttk.Frame(self.root, width=10, height=10)
+            #self.secret = KeySecretEntry(self.root, database_name, password)
+            leave = ttk.Button(self.app_frm, text="Quit", command=self.log_out)
+            self.secret.init_ui()
+            self.app_frm.pack(side=tk.BOTTOM)
+            leave.pack()
 
     def log_in(self):
         database = self.login.get_database()
