@@ -1,3 +1,4 @@
+import clipboard
 import tkinter as tk
 from tkinter import ttk
 from ttkwidgets.autocomplete import AutocompleteCombobox
@@ -92,11 +93,20 @@ class KeySecretEntry:
             secret = ""
 
         entry = self.add_or_secret_frame.children.get('!entry', None)
+        copy = self.add_or_secret_frame.children.get('!button', None)
         if entry is None:
             entry = ttk.Entry(self.add_or_secret_frame, justify="left", width=60)
+            copy = ttk.Button(self.add_or_secret_frame, text="Copy", command=self.copy_secret)
+        entry.config(state='enable')
         entry.delete(0, 'end')
         entry.insert(0, secret)
+        entry.config(state='disabled')
         entry.pack(pady=(100, 0))
+        copy.pack()
+
+    def copy_secret(self):
+        secret_value = self.add_or_secret_frame.children['!entry'].get()
+        clipboard.copy(secret_value)
 
     def _destroy_add_or_get_secret_ui(self):
         if self.add_or_secret_frame:
